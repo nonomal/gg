@@ -56,7 +56,9 @@ func (s *Shadowsocks) Dialer() (*dialer.Dialer, error) {
 	switch s.Cipher {
 	case "aes-256-gcm", "aes-128-gcm", "chacha20-poly1305", "chacha20-ietf-poly1305":
 	default:
-		return nil, fmt.Errorf("unsupported shadowsocks encryption method: %v", s.Cipher)
+		if !isSS2022Cipher(s.Cipher) {
+			return nil, fmt.Errorf("unsupported shadowsocks encryption method: %v", s.Cipher)
+		}
 	}
 	var err error
 	supportUDP := s.UDP
@@ -78,12 +80,17 @@ func (s *Shadowsocks) Dialer() (*dialer.Dialer, error) {
 		}
 		supportUDP = false
 	}
-	d, err = protocol.NewDialer("shadowsocks", d, protocol.Header{
-		ProxyAddress: net.JoinHostPort(s.Server, strconv.Itoa(s.Port)),
-		Cipher:       s.Cipher,
-		Password:     s.Password,
-		IsClient:     true,
-	})
+	proxyAddress := net.JoinHostPort(s.Server, strconv.Itoa(s.Port))
+	if isSS2022Cipher(s.Cipher) {
+		d, err = newSS2022Dialer(d, proxyAddress, s.Cipher, s.Password)
+	} else {
+		d, err = protocol.NewDialer("shadowsocks", d, protocol.Header{
+			ProxyAddress: proxyAddress,
+			Cipher:       s.Cipher,
+			Password:     s.Password,
+			IsClient:     true,
+		})
+	}
 	if err != nil {
 		return nil, err
 	}

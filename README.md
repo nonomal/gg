@@ -328,6 +328,7 @@ complete -c gg -x -a "(__fish_complete_gg_subcommand)"
   - [x] GRPC
 - [x] Shadowsocks
   - [x] AEAD Ciphers
+  - [x] Shadowsocks 2022
   - [x] simple-obfs (not tested)
   - [x] Stream Ciphers
   - [ ] v2ray-plugin
@@ -344,4 +345,3 @@ complete -c gg -x -a "(__fish_complete_gg_subcommand)"
 - [ ] Surge
 - [ ] Quantumult
 - [ ] Quantumult X
-
